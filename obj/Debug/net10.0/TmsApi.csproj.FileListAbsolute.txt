@@ -26,3 +26,14 @@ C:\Users\User\TmsApi\obj\Debug\net10.0\refint\TmsApi.dll
 C:\Users\User\TmsApi\obj\Debug\net10.0\TmsApi.pdb
 C:\Users\User\TmsApi\obj\Debug\net10.0\TmsApi.genruntimeconfig.cache
 C:\Users\User\TmsApi\obj\Debug\net10.0\ref\TmsApi.dll
+C:\Users\User\TmsApi\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\User\TmsApi\bin\Debug\net10.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\User\TmsApi\bin\Debug\net10.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\User\TmsApi\bin\Debug\net10.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\User\TmsApi\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\User\TmsApi\bin\Debug\net10.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\User\TmsApi\bin\Debug\net10.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\User\TmsApi\bin\Debug\net10.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\User\TmsApi\obj\Debug\net10.0\TmsApi.csproj.AssemblyReference.cache
+C:\Users\User\TmsApi\obj\Debug\net10.0\TmsApi.sourcelink.json
+C:\Users\User\TmsApi\obj\Debug\net10.0\TmsApi.csproj.Up2Date
