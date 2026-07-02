@@ -12,7 +12,7 @@ builder.Services.AddControllers();
 
 // Exercise 2 registrations
 builder.Services.AddSingleton<EnrollmentWorker>();
-builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
+builder.Services.AddSingleton<IEnrollmentService, EnrollmentService>();
 
 builder.Services.AddOptions<PaymentOptions>()
     .BindConfiguration("Payments")
