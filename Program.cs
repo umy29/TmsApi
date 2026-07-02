@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseDefaultServiceProvider(options =>
@@ -29,6 +30,8 @@ builder.Services.AddOptions<PaymentOptions>()
 // Exercise 6: ProblemDetails
 builder.Services.AddProblemDetails();
 
+// Exercise 7: OpenAPI
+builder.Services.AddOpenApi();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -43,6 +46,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
 
 app.MapGet("/api/enrollments/worker-smoke", async (EnrollmentWorker worker) =>
 {
