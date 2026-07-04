@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using TmsApi.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +34,11 @@ builder.Services.AddProblemDetails();
 
 // Exercise 7: OpenAPI
 builder.Services.AddOpenApi();
+
+// Register TmsDbContext scoped for incoming HTTP requests
+builder.Services.AddDbContext<TmsDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("TmsDatabase"))); 
+    
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
