@@ -1,0 +1,29 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TmsApi.Entities;
+
+namespace TmsApi.Data.Configurations;
+
+public class StudentConfiguration : IEntityTypeConfiguration<Student>
+{
+    public void Configure(EntityTypeBuilder<Student> builder)
+    {
+        builder.HasKey(s => s.Id);
+
+        builder.Property(s => s.RegistrationNumber)
+            .IsRequired()
+            .HasMaxLength(20);
+
+        builder.Property(s => s.Name)
+            .IsRequired()
+            .HasMaxLength(200);
+
+        builder.Property<DateTime>("LastUpdated");
+
+        builder.Property(s => s.Version).IsRowVersion();
+
+        // Soft-delete: normal queries automatically exclude deleted students.
+        // Use IgnoreQueryFilters() explicitly for admin/restore scenarios.
+        builder.HasQueryFilter(s => !s.IsDeleted);
+    }
+}
