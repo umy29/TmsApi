@@ -22,4 +22,47 @@ public class StudentsController(TmsDbContext context) : ControllerBase
 
         return Ok(students);
     }
+    [HttpPut("{id}/gpa")]
+public async Task<IActionResult> UpdateGpa(int id, [FromQuery] decimal gpa, CancellationToken cancellationToken)
+{
+    var student = await context.Students.FindAsync([id], cancellationToken);
+    if (student is null) return NotFound();
+
+    student.GPA = gpa;
+    await context.SaveChangesAsync(cancellationToken);
+
+    var lastUpdated = context.Entry(student).Property("LastUpdated").CurrentValue;
+    return Ok(new { student.Id, student.Name, student.GPA, LastUpdated = lastUpdated });
+}
+[HttpPost("{id}/concurrency-test")]
+public async Task<IActionResult> ConcurrencyTest(int id, [FromServices] IDbContextFactory<TmsDbContext> factory, CancellationToken cancellationToken)
+{
+    // Two independent contexts = two independent "tabs"/requests
+    await using var contextA = await factory.CreateDbContextAsync(cancellationToken);
+    await using var contextB = await factory.CreateDbContextAsync(cancellationToken);
+
+    var studentA = await contextA.Students.FindAsync([id], cancellationToken);
+    var studentB = await contextB.Students.FindAsync([id], cancellationToken);
+
+    if (studentA is null || studentB is null) return NotFound();
+
+    // Tab A saves first
+    studentA.Name = studentA.Name + " (edited by Tab A)";
+    await contextA.SaveChangesAsync(cancellationToken);
+
+    try
+    {
+        // Tab B still holds the OLD xmin from before Tab A's save
+        studentB.GPA += 0.01m;
+        await contextB.SaveChangesAsync(cancellationToken);
+
+        return Ok("No conflict detected (unexpected)");
+    }
+    catch (DbUpdateConcurrencyException ex)
+    {
+        return Conflict(new { Message = "Concurrency conflict detected as expected", Detail = ex.Message });
+    }
+}
+
+
 }

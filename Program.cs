@@ -36,11 +36,17 @@ builder.Services.AddProblemDetails();
 // Exercise 7: OpenAPI
 builder.Services.AddOpenApi();
 
-// Register TmsDbContext scoped for incoming HTTP requests
-builder.Services.AddDbContext<TmsDbContext>(options =>
+// Register the factory (singleton) — lets us create independent DbContext
+// instances on demand, needed for the concurrency-conflict simulation.
+builder.Services.AddDbContextFactory<TmsDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("TmsDatabase"))
-        .LogTo(Console.WriteLine, LogLevel.Information) // Log SQL to output window
-        .EnableSensitiveDataLogging()); // Show parameters in query logs (dev only)
+        .LogTo(Console.WriteLine, LogLevel.Information)
+        .EnableSensitiveDataLogging());
+
+// Also register a scoped TmsDbContext (built from the factory) so existing
+// controllers that inject TmsDbContext directly keep working unchanged.
+builder.Services.AddScoped<TmsDbContext>(sp =>
+    sp.GetRequiredService<IDbContextFactory<TmsDbContext>>().CreateDbContext());
     
 var app = builder.Build();
 

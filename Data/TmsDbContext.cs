@@ -15,4 +15,25 @@ public class TmsDbContext(DbContextOptions<TmsDbContext> options) : DbContext(op
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TmsDbContext).Assembly);
     }
+
+    public override int SaveChanges()
+    {
+        UpdateAuditShadowProperties();
+        return base.SaveChanges();
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateAuditShadowProperties();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void UpdateAuditShadowProperties()
+    {
+        foreach (var entry in ChangeTracker.Entries<Student>()
+                     .Where(e => e.State is EntityState.Added or EntityState.Modified))
+        {
+            entry.Property("LastUpdated").CurrentValue = DateTime.UtcNow;
+        }
+    }
 }
