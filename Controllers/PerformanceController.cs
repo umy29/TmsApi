@@ -48,4 +48,16 @@ public class PerformanceController(TmsDbContext db) : ControllerBase
         Console.WriteLine(">>> SHAPED QUERY DEMO: Finished.\n");
         return Ok(report);
     }
+
+    [HttpPost("archive-old-enrollments")]
+public async Task<IActionResult> ArchiveOldEnrollments([FromQuery] int olderThanDays, CancellationToken cancellationToken)
+{
+    var cutoff = DateTime.UtcNow.AddDays(-olderThanDays);
+
+    var affectedRows = await db.Enrollments
+        .Where(e => e.EnrolledAt < cutoff && !e.IsArchived)
+        .ExecuteUpdateAsync(s => s.SetProperty(e => e.IsArchived, true), cancellationToken);
+
+    return Ok(new { ArchivedCount = affectedRows });
+}
 }

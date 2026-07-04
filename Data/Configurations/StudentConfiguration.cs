@@ -21,5 +21,9 @@ public class StudentConfiguration : IEntityTypeConfiguration<Student>
         builder.Property<DateTime>("LastUpdated");
 
         builder.Property(s => s.Version).IsRowVersion();
+
+        // Soft-delete: normal queries automatically exclude deleted students.
+        // Use IgnoreQueryFilters() explicitly for admin/restore scenarios.
+        builder.HasQueryFilter(s => !s.IsDeleted);
     }
 }

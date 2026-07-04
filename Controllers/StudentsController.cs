@@ -64,5 +64,35 @@ public async Task<IActionResult> ConcurrencyTest(int id, [FromServices] IDbConte
     }
 }
 
+[HttpPost("{id}/soft-delete")]
+public async Task<IActionResult> SoftDelete(int id, CancellationToken cancellationToken)
+{
+    var student = await context.Students.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+    if (student is null) return NotFound();
+
+    student.IsDeleted = true;
+    await context.SaveChangesAsync(cancellationToken);
+    return Ok(new { student.Id, student.Name, student.IsDeleted });
+}
+
+[HttpGet("normal")]
+public async Task<IActionResult> GetNormal(CancellationToken cancellationToken)
+{
+    // HasQueryFilter automatically excludes IsDeleted students here.
+    var students = await context.Students.Select(s => s.Name).ToListAsync(cancellationToken);
+    return Ok(students);
+}
+
+[HttpGet("admin-all")]
+public async Task<IActionResult> GetAllIncludingDeleted(CancellationToken cancellationToken)
+{
+    // IgnoreQueryFilters() bypasses the soft-delete filter for admin/restore scenarios.
+    var students = await context.Students
+        .IgnoreQueryFilters()
+        .Select(s => new { s.Name, s.IsDeleted })
+        .ToListAsync(cancellationToken);
+    return Ok(students);
+}
+
 
 }
