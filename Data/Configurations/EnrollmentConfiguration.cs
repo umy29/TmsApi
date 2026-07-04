@@ -10,12 +10,19 @@ public class EnrollmentConfiguration : IEntityTypeConfiguration<Enrollment>
     {
         builder.HasKey(e => e.Id);
 
-        builder.HasOne(e => e.Student)
-            .WithMany(s => s.Enrollments)
-            .HasForeignKey(e => e.StudentId);
-
+        // Restrict: a course with active enrollments cannot be deleted outright.
+        // This forces deliberate handling (e.g. archiving enrollments first)
+        // instead of silently wiping enrollment history when a course is removed.
         builder.HasOne(e => e.Course)
             .WithMany(c => c.Enrollments)
-            .HasForeignKey(e => e.CourseId);
+            .HasForeignKey(e => e.CourseId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Cascade: if a student record itself is deleted, their own enrollment
+        // history is deleted with them — no orphaned enrollments pointing nowhere.
+        builder.HasOne(e => e.Student)
+            .WithMany(s => s.Enrollments)
+            .HasForeignKey(e => e.StudentId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
