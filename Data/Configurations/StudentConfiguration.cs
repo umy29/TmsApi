@@ -4,9 +4,6 @@ using TmsApi.Entities;
 
 namespace TmsApi.Data.Configurations;
 
-// Module 5 - Session 2 - Exercise 4: IEntityTypeConfiguration for each entity
-// Keeps persistence rules (keys, lengths, required fields) out of the entity
-// class itself and out of a giant OnModelCreating method.
 public class StudentConfiguration : IEntityTypeConfiguration<Student>
 {
     public void Configure(EntityTypeBuilder<Student> builder)
@@ -20,5 +17,14 @@ public class StudentConfiguration : IEntityTypeConfiguration<Student>
         builder.Property(s => s.Name)
             .IsRequired()
             .HasMaxLength(200);
+
+        builder.Property<DateTime>("LastUpdated");
+
+        builder.Property(s => s.Version).IsRowVersion();
+
+        // Module 5 - Session 3 - Exercise 9: soft-delete query filter.
+        // Normal queries automatically exclude deleted students;
+        // use IgnoreQueryFilters() explicitly for admin/restore scenarios.
+        builder.HasQueryFilter(s => !s.IsDeleted);
     }
 }

@@ -36,16 +36,18 @@ builder.Services.AddProblemDetails();
 // Exercise 7: OpenAPI
 builder.Services.AddOpenApi();
 
-// Module 5 - Session 1 - Exercise 1, Step 3 (updated in Exercise 2, Step 1):
-// Register TmsDbContext, with SQL logging enabled for development.
-// LogTo prints every generated SQL statement to the console.
-// EnableSensitiveDataLogging shows actual parameter values (dev-only —
-// never enable this in production, it can leak sensitive data into logs).
-builder.Services.AddDbContext<TmsDbContext>(options =>
+// Module 5 - Session 3 - Exercise 8: register a factory so we can create
+// independent DbContext instances on demand — needed to correctly simulate
+// two separate "sessions" for the concurrency-conflict test below.
+builder.Services.AddDbContextFactory<TmsDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("TmsDatabase"))
         .LogTo(Console.WriteLine, LogLevel.Information)
         .EnableSensitiveDataLogging());
 
+// Also register a scoped TmsDbContext built from the factory, so existing
+// controllers that inject TmsDbContext directly keep working unchanged.
+builder.Services.AddScoped<TmsDbContext>(sp =>
+    sp.GetRequiredService<IDbContextFactory<TmsDbContext>>().CreateDbContext());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

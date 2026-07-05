@@ -12,10 +12,32 @@ public class TmsDbContext(DbContextOptions<TmsDbContext> options) : DbContext(op
     public DbSet<Assessment> Assessments => Set<Assessment>();
     public DbSet<Certificate> Certificates => Set<Certificate>();
 
-    // Module 5 - Session 2 - Exercise 4: apply all IEntityTypeConfiguration classes
-    // in the assembly automatically, instead of a long manual OnModelCreating body.
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TmsDbContext).Assembly);
+    }
+
+    // Module 5 - Session 3 - Exercise 8: automatically stamp the LastUpdated
+    // shadow property on every Student that's added or modified, so no
+    // controller needs to remember to set it manually.
+    public override int SaveChanges()
+    {
+        UpdateAuditShadowProperties();
+        return base.SaveChanges();
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateAuditShadowProperties();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void UpdateAuditShadowProperties()
+    {
+        foreach (var entry in ChangeTracker.Entries<Student>()
+                     .Where(e => e.State is EntityState.Added or EntityState.Modified))
+        {
+            entry.Property("LastUpdated").CurrentValue = DateTime.UtcNow;
+        }
     }
 }
