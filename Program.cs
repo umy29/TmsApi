@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using TmsApi.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +34,11 @@ builder.Services.AddProblemDetails();
 
 // Exercise 7: OpenAPI
 builder.Services.AddOpenApi();
+
+// Module 5 - Session 1 - Exercise 1, Step 3: Register the DbContext in Program.cs
+// UseNpgsql translates LINQ into PostgreSQL SQL via the connection string below.
+builder.Services.AddDbContext<TmsDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("TmsDatabase")));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
