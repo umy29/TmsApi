@@ -20,9 +20,11 @@ public class StudentConfiguration : IEntityTypeConfiguration<Student>
 
         builder.Property<DateTime>("LastUpdated");
 
-        // Module 5 - Session 3 - Exercise 8: Npgsql maps IsRowVersion() to
-        // PostgreSQL's built-in xmin system column — no new physical column
-        // is created, EF just adopts xmin as the tracked concurrency token.
         builder.Property(s => s.Version).IsRowVersion();
+
+        // Module 5 - Session 3 - Exercise 9: soft-delete query filter.
+        // Normal queries automatically exclude deleted students;
+        // use IgnoreQueryFilters() explicitly for admin/restore scenarios.
+        builder.HasQueryFilter(s => !s.IsDeleted);
     }
 }

@@ -53,4 +53,17 @@ public class PerformanceController(TmsDbContext db) : ControllerBase
         Console.WriteLine(">>> SHAPED QUERY DEMO: Finished.\n");
         return Ok(report);
     }
+    // Module 5 - Session 3 - Exercise 9: bulk archive using ExecuteUpdateAsync.
+// This produces ONE SQL UPDATE statement, not one per row — set-based, not row-by-row.
+[HttpPost("archive-old-enrollments")]
+public async Task<IActionResult> ArchiveOldEnrollments([FromQuery] int olderThanDays, CancellationToken cancellationToken)
+{
+    var cutoff = DateTime.UtcNow.AddDays(-olderThanDays);
+
+    var affectedRows = await db.Enrollments
+        .Where(e => e.EnrolledAt < cutoff && !e.IsArchived)
+        .ExecuteUpdateAsync(s => s.SetProperty(e => e.IsArchived, true), cancellationToken);
+
+    return Ok(new { ArchivedCount = affectedRows });
+}
 }

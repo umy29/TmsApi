@@ -76,4 +76,38 @@ public async Task<IActionResult> ConcurrencyTest(int id, [FromServices] IDbConte
         return Conflict(new { Message = "Concurrency conflict detected as expected", Detail = ex.Message });
     }
 }
+
+// Module 5 - Session 3 - Exercise 9: soft-delete a student.
+[HttpPost("{id}/soft-delete")]
+public async Task<IActionResult> SoftDelete(int id, CancellationToken cancellationToken)
+{
+    var student = await context.Students.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+    if (student is null) return NotFound();
+
+    student.IsDeleted = true;
+    await context.SaveChangesAsync(cancellationToken);
+    return Ok(new { student.Id, student.Name, student.IsDeleted });
 }
+
+// Module 5 - Session 3 - Exercise 9: normal query — HasQueryFilter
+// automatically excludes IsDeleted students, no extra code needed here.
+[HttpGet("normal")]
+public async Task<IActionResult> GetNormal(CancellationToken cancellationToken)
+{
+    var students = await context.Students.Select(s => s.Name).ToListAsync(cancellationToken);
+    return Ok(students);
+}
+
+// Module 5 - Session 3 - Exercise 9: admin/restore view —
+// IgnoreQueryFilters() bypasses the soft-delete filter.
+[HttpGet("admin-all")]
+public async Task<IActionResult> GetAllIncludingDeleted(CancellationToken cancellationToken)
+{
+    var students = await context.Students
+        .IgnoreQueryFilters()
+        .Select(s => new { s.Name, s.IsDeleted })
+        .ToListAsync(cancellationToken);
+    return Ok(students);
+}
+}
+
