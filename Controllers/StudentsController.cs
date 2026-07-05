@@ -44,4 +44,36 @@ public async Task<IActionResult> Top5CoursesByEnrollment(CancellationToken cance
 
     return Ok(list);
 }
+// Module 5 - Session 3 - Exercise 8: concurrency conflict test.
+// Uses two independent DbContext instances (via the factory) to genuinely
+// simulate "two browser tabs" editing the same student at the same time.
+[HttpPost("{id}/concurrency-test")]
+public async Task<IActionResult> ConcurrencyTest(int id, [FromServices] IDbContextFactory<TmsDbContext> factory, CancellationToken cancellationToken)
+{
+    await using var contextA = await factory.CreateDbContextAsync(cancellationToken);
+    await using var contextB = await factory.CreateDbContextAsync(cancellationToken);
+
+    var studentA = await contextA.Students.FindAsync([id], cancellationToken);
+    var studentB = await contextB.Students.FindAsync([id], cancellationToken);
+
+    if (studentA is null || studentB is null) return NotFound();
+
+    // Tab A saves first — its xmin value updates in the database.
+    studentA.Name = studentA.Name + " (edited by Tab A)";
+    await contextA.SaveChangesAsync(cancellationToken);
+
+    try
+    {
+        // Tab B still holds the OLD xmin from before Tab A's save,
+        // so this UPDATE's WHERE clause matches zero rows -> EF throws.
+        studentB.GPA += 0.01m;
+        await contextB.SaveChangesAsync(cancellationToken);
+
+        return Ok("No conflict detected (unexpected)");
+    }
+    catch (DbUpdateConcurrencyException ex)
+    {
+        return Conflict(new { Message = "Concurrency conflict detected as expected", Detail = ex.Message });
+    }
+}
 }
