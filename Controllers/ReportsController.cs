@@ -86,4 +86,21 @@ public class ReportsController(TmsDbContext context) : ControllerBase
 
         return Ok(list);
     }
+    // Module 5 - Session 2 - Exercise 3, Task 2: top 5 courses by enrollment count.
+// Same shape as Session 1's top-courses query, capped with Take(5).
+[HttpGet("top5-courses-by-enrollment")]
+public async Task<IActionResult> Top5CoursesByEnrollment(CancellationToken cancellationToken)
+{
+    var list = await context.Courses
+        .Select(c => new
+        {
+            c.Title,
+            EnrollmentCount = c.Enrollments.Count
+        })
+        .OrderByDescending(x => x.EnrollmentCount)
+        .Take(5)
+        .ToListAsync(cancellationToken);
+
+    return Ok(list);
+}
 }
