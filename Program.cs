@@ -136,4 +136,13 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// Module 6 - Session 2 - Before You Begin: run the deterministic seeder,
+// Development only. IsDevelopment() gate matters — this should never run
+// against production data owned by the operations team.
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var seedContext = scope.ServiceProvider.GetRequiredService<TmsDbContext>();
+    await DataSeeder.SeedAsync(seedContext);
+}
 app.Run();
