@@ -1,4 +1,5 @@
 using TmsApi.Entities;
+using TmsApi.Services;
 using Microsoft.EntityFrameworkCore;
 using TmsApi.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -48,6 +49,15 @@ builder.Services.AddDbContextFactory<TmsDbContext>(options =>
 // controllers that inject TmsDbContext directly keep working unchanged.
 builder.Services.AddScoped<TmsDbContext>(sp =>
     sp.GetRequiredService<IDbContextFactory<TmsDbContext>>().CreateDbContext());
+
+    // Module 6 - Session 1 - Exercise 1, Step 2: register ICourseService scoped —
+// same lifetime as TmsDbContext (fresh per request), since CourseService
+// depends on it. Singleton would capture the DbContext forever and crash
+// the second request; transient would allocate a new CourseService pointlessly.
+builder.Services.AddScoped<ICourseService, CourseService>();
+
+// Module 6 - Session 1 - Exercise 3: register scoped, matches TmsDbContext's lifetime.
+builder.Services.AddScoped<ICourseEnrollmentService, CourseEnrollmentService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -103,11 +113,11 @@ using (var scope = app.Services.CreateScope())
         context.Students.AddRange(students);
 
         var courses = new List<Course>
-        {
-            new() { Code = "CS-101", Title = "Introduction to Computer Science", Capacity = 30 },
-            new() { Code = "CS-201", Title = "Data Structures and Algorithms", Capacity = 25 },
-            new() { Code = "MAT-101", Title = "Calculus I", Capacity = 40 }
-        };
+{
+    new() { Code = "CS-101", Title = "Introduction to Computer Science", MaxCapacity = 30 },
+    new() { Code = "CS-201", Title = "Data Structures and Algorithms", MaxCapacity = 25 },
+    new() { Code = "MAT-101", Title = "Calculus I", MaxCapacity = 40 }
+};
         context.Courses.AddRange(courses);
 
         // Save students/courses first so they get real Id values,
