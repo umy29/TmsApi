@@ -1,26 +1,41 @@
 using Microsoft.EntityFrameworkCore;
 using TmsApi.Data;
+using TmsApi.Dtos;
 using TmsApi.Entities;
 
 namespace TmsApi.Services;
 
 // Module 6 - Session 1 - Exercise 1: First REST Controller
-// Primary-constructor DI, ILogger at the service boundary (not the controller),
-// and CancellationToken on every async method — production habits from day one.
+// (updated in Exercise 2: project to DTOs at the query layer)
 public class CourseService(TmsDbContext context, ILogger<CourseService> logger) : ICourseService
 {
-    public async Task<Course?> GetByIdAsync(int id, CancellationToken ct)
-    {
-        return await context.Courses
+    // AsNoTracking(): read paths never need change tracking, saves CPU/memory.
+    // Select(...) projection: EF translates c.Enrollments.Count into a SQL
+    // COUNT(*) subquery — we never load every enrollment row into memory.
+    public Task<CourseResponseDto?> GetByIdAsync(int id, CancellationToken ct) =>
+        context.Courses
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == id, ct);
-    }
+            .Where(c => c.Id == id)
+            .Select(c => new CourseResponseDto(
+                c.Id, c.Code, c.Title, c.MaxCapacity, c.Enrollments.Count))
+            .FirstOrDefaultAsync(ct);
 
-    public async Task<Course> CreateAsync(Course course, CancellationToken ct)
+    public async Task<CourseResponseDto> CreateAsync(CreateCourseRequest request, CancellationToken ct)
     {
+        var course = new Course
+        {
+            Code = request.Code,
+            Title = request.Title,
+            MaxCapacity = request.MaxCapacity
+        };
+
         context.Courses.Add(course);
         await context.SaveChangesAsync(ct);
+
         logger.LogInformation("Created course {CourseId} ({Code})", course.Id, course.Code);
-        return course;
+
+        // Re-query through GetByIdAsync so the response uses the same
+        // projection — the null! is safe since we just inserted and saved.
+        return (await GetByIdAsync(course.Id, ct))!;
     }
 }

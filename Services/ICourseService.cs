@@ -1,12 +1,11 @@
-using TmsApi.Entities;
+using TmsApi.Dtos;
 
 namespace TmsApi.Services;
 
 // Module 6 - Session 1 - Exercise 1: First REST Controller
-// Service layer between the controller and persistence — keeps business
-// rules and side effects out of the controller, testable in isolation.
+// (updated in Exercise 2: return/accept DTOs instead of raw entities)
 public interface ICourseService
 {
-    Task<Course?> GetByIdAsync(int id, CancellationToken ct);
-    Task<Course> CreateAsync(Course course, CancellationToken ct);
+    Task<CourseResponseDto?> GetByIdAsync(int id, CancellationToken ct);
+    Task<CourseResponseDto> CreateAsync(CreateCourseRequest request, CancellationToken ct);
 }
