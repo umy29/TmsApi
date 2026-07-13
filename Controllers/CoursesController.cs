@@ -18,11 +18,24 @@ public class CoursesController(ICourseService courseService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateCourse(CreateCourseRequest request, CancellationToken ct)
+   [HttpPost]
+public async Task<IActionResult> CreateCourse(CreateCourseRequest request, CancellationToken ct)
+{
+    // Module 6 - Session 1 - Exercise 3: check the business rule BEFORE
+    // hitting the database — a duplicate code is a known, expected failure,
+    // not a 500. The framework's ProblemDetails middleware handles truly
+    // unhandled exceptions; this is a deliberate pre-check, not a try/catch.
+    if (await courseService.CodeExistsAsync(request.Code, ct))
     {
-        // Binding to CreateCourseRequest triggers automatic model validation
-        // against the Data Annotations, via [ApiController] on this class.
-        var result = await courseService.CreateAsync(request, ct);
-        return CreatedAtAction(nameof(GetCourseById), new { id = result.Id }, result);
+        return Conflict(new ProblemDetails
+        {
+            Title = "Course code already exists",
+            Detail = $"A course with code '{request.Code}' is already registered.",
+            Status = StatusCodes.Status409Conflict
+        });
     }
+
+    var result = await courseService.CreateAsync(request, ct);
+    return CreatedAtAction(nameof(GetCourseById), new { id = result.Id }, result);
+}  
 }

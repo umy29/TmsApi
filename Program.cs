@@ -49,12 +49,15 @@ builder.Services.AddDbContextFactory<TmsDbContext>(options =>
 // controllers that inject TmsDbContext directly keep working unchanged.
 builder.Services.AddScoped<TmsDbContext>(sp =>
     sp.GetRequiredService<IDbContextFactory<TmsDbContext>>().CreateDbContext());
-    
+
     // Module 6 - Session 1 - Exercise 1, Step 2: register ICourseService scoped —
 // same lifetime as TmsDbContext (fresh per request), since CourseService
 // depends on it. Singleton would capture the DbContext forever and crash
 // the second request; transient would allocate a new CourseService pointlessly.
 builder.Services.AddScoped<ICourseService, CourseService>();
+
+// Module 6 - Session 1 - Exercise 3: register scoped, matches TmsDbContext's lifetime.
+builder.Services.AddScoped<ICourseEnrollmentService, CourseEnrollmentService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

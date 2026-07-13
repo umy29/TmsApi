@@ -38,4 +38,10 @@ public class CourseService(TmsDbContext context, ILogger<CourseService> logger) 
         // projection — the null! is safe since we just inserted and saved.
         return (await GetByIdAsync(course.Id, ct))!;
     }
+
+    // Module 6 - Session 1 - Exercise 3: duplicate-code business rule check.
+// AnyAsync translates to SELECT EXISTS (SELECT 1 ... LIMIT 1) —
+// stops at the first matching row, doesn't count everything.
+public Task<bool> CodeExistsAsync(string code, CancellationToken ct) =>
+    context.Courses.AsNoTracking().AnyAsync(c => c.Code == code, ct);
 }
