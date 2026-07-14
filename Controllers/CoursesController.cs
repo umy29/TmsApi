@@ -1,19 +1,25 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using TmsApi.Dtos;
 using TmsApi.Services;
 
 namespace TmsApi.Controllers;
 
 // Module 6 - Session 1 - Exercise 1: First REST Controller
-// (updated in Exercise 2: accept/return DTOs, not raw entities)
+// (updated in Session 3 - Exercise 5: HATEOAS links; Exercise 6: Scalar metadata)
 [ApiController]
 [Route("api/courses")]
-public class CoursesController(ICourseService courseService) : ControllerBase
+[Tags("Courses")]
+[Produces("application/json")]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+public class CoursesController(
+    ICourseService courseService,
+    LinkGenerator linkGenerator) : ControllerBase
 {
-    // Module 6 - Session 2 - Exercise 4, Part B: paginated collection endpoint.
-    // [FromQuery] binds from query-string params — without it, ASP.NET Core
-    // would try to bind from the body, which is wrong for a GET.
     [HttpGet]
+    [ProducesResponseType(typeof(PagedResponse<CourseResponseDto>), StatusCodes.Status200OK)]
+    [EndpointSummary("List courses with pagination")]
+    [EndpointDescription("Returns a paginated, optionally filtered list of TMS courses. PageSize is capped at 50.")]
     public async Task<IActionResult> GetCourses([FromQuery] PagedRequest request, CancellationToken ct)
     {
         var result = await courseService.GetCoursesAsync(request, ct);
@@ -21,19 +27,52 @@ public class CoursesController(ICourseService courseService) : ControllerBase
     }
 
     [HttpGet("{id:int}", Name = nameof(GetCourseById))]
+    [ProducesResponseType(typeof(CourseDetailDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [EndpointSummary("Get a course by ID")]
+    [EndpointDescription("Returns course details with HATEOAS links. Returns 404 if the course does not exist.")]
     public async Task<IActionResult> GetCourseById(int id, CancellationToken ct)
     {
         var course = await courseService.GetByIdAsync(id, ct);
-        return course is not null ? Ok(course) : NotFound();
+        if (course is null) return NotFound();
+
+        var selfHref = linkGenerator.GetPathByName(HttpContext, nameof(GetCourseById), new { id });
+        var enrollmentsHref = linkGenerator.GetPathByName(HttpContext, "ListCourseEnrollments", new { courseId = id });
+
+        var links = new List<LinkDto>
+        {
+            new(selfHref!, "self", "GET"),
+            new(selfHref!, "update", "PUT"),
+            new(selfHref!, "delete", "DELETE"),
+            new(enrollmentsHref!, "enrollments", "GET"),
+        };
+
+        if (course.EnrollmentCount < course.MaxCapacity)
+        {
+            links.Add(new LinkDto(enrollmentsHref!, "enroll", "POST"));
+        }
+
+        var detail = new CourseDetailDto
+        {
+            Id = course.Id,
+            Code = course.Code,
+            Title = course.Title,
+            MaxCapacity = course.MaxCapacity,
+            EnrollmentCount = course.EnrollmentCount,
+            Links = links
+        };
+
+        return Ok(detail);
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(CourseResponseDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [EndpointSummary("Create a new course")]
+    [EndpointDescription("Creates a course with a unique code. Returns 409 if the course code already exists.")]
     public async Task<IActionResult> CreateCourse(CreateCourseRequest request, CancellationToken ct)
     {
-        // Module 6 - Session 1 - Exercise 3: check the business rule BEFORE
-        // hitting the database — a duplicate code is a known, expected failure,
-        // not a 500. The framework's ProblemDetails middleware handles truly
-        // unhandled exceptions; this is a deliberate pre-check, not a try/catch.
         if (await courseService.CodeExistsAsync(request.Code, ct))
         {
             return Conflict(new ProblemDetails
