@@ -1,4 +1,5 @@
 using TmsApi.Entities;
+using TmsApi.Filters;
 using TmsApi.Services;
 using Microsoft.EntityFrameworkCore;
 using TmsApi.Data;
@@ -12,9 +13,13 @@ builder.Host.UseDefaultServiceProvider(options =>
     options.ValidateOnBuild = true;
 });
 
-// Add services to the container.
-builder.Services.AddControllers();
-
+// Module 6 - Session 2 - Exercise 4, Part D: register the audit filter globally.
+// Add<T>() (generic overload) lets DI resolve ILogger<AuditLogFilter> —
+// Add(new AuditLogFilter(...)) would force manual construction, unnecessary.
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<AuditLogFilter>();
+});
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
@@ -136,4 +141,13 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// Module 6 - Session 2 - Before You Begin: run the deterministic seeder,
+// Development only. IsDevelopment() gate matters — this should never run
+// against production data owned by the operations team.
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var seedContext = scope.ServiceProvider.GetRequiredService<TmsDbContext>();
+    await DataSeeder.SeedAsync(seedContext);
+}
 app.Run();
