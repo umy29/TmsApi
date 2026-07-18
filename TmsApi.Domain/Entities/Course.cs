@@ -1,4 +1,4 @@
-namespace TmsApi.Entities;
+namespace TmsApi.Domain.Entities;
 
 // Module 5 - Session 1 - Exercise 1: Configure TmsDbContext and Apply the First Migration
 // (updated in Module 6 - Session 1 - Before You Begin: renamed Capacity -> MaxCapacity

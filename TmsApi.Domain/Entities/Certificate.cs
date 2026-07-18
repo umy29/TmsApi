@@ -1,6 +1,6 @@
 using System;
 
-namespace TmsApi.Entities;
+namespace TmsApi.Domain.Entities;
 
 // Module 5 - Session 1 - Extended Exercise (Stretch): Wire Assessment and Certificate into the Database
 // Issued to one Student for completing one Course.
