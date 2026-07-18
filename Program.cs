@@ -2,7 +2,7 @@ using TmsApi.Entities;
 using TmsApi.Filters;
 using TmsApi.Services;
 using Microsoft.EntityFrameworkCore;
-using TmsApi.Data;
+using TmsApi.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);

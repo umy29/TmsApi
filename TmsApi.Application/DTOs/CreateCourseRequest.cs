@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace TmsApi.Dtos;
+namespace TmsApi.Application.DTOs;
 
 // Module 6 - Session 1 - Exercise 2: DTOs and Input Validation
 // [ApiController] on the controller automatically triggers model validation

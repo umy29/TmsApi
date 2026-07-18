@@ -1,9 +1,11 @@
+using Microsoft.Extensions.Logging;
+using TmsApi.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using TmsApi.Data;
-using TmsApi.Dtos;
-using TmsApi.Entities;
+using TmsApi.Infrastructure.Persistence;
+using TmsApi.Application.DTOs;
+using TmsApi.Domain.Entities;
 
-namespace TmsApi.Services;
+namespace TmsApi.Infrastructure.Services;
 
 // Module 6 - Session 1 - Exercise 1: First REST Controller
 // (updated in Exercise 2: project to DTOs at the query layer)

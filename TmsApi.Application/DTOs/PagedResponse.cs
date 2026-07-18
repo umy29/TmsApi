@@ -1,4 +1,4 @@
-namespace TmsApi.Dtos;
+namespace TmsApi.Application.DTOs;
 
 // Module 6 - Session 2 - Exercise 4, Part A: pagination output contract.
 // TotalPages, HasPrevious, HasNext are computed properties — included in

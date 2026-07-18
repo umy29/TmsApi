@@ -1,4 +1,4 @@
-namespace TmsApi.Dtos;
+namespace TmsApi.Application.DTOs;
 
 // Module 6 - Session 1 - Exercise 3: enrollment response DTO.
 public record EnrollmentResponseDto(

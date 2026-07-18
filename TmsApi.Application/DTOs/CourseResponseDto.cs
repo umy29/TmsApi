@@ -1,4 +1,4 @@
-namespace TmsApi.Dtos;
+namespace TmsApi.Application.DTOs;
 
 // Module 6 - Session 1 - Exercise 2: DTOs and Input Validation
 // Immutable value container for the wire — deliberately excludes

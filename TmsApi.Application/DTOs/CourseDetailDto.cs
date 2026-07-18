@@ -1,4 +1,4 @@
-namespace TmsApi.Dtos;
+namespace TmsApi.Application.DTOs;
 
 // Module 6 - Session 3 - Exercise 5: detail shape for GET /api/courses/{id}.
 // Everything in CourseResponseDto plus the Links array. The list/page

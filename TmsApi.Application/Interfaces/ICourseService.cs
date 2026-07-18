@@ -1,6 +1,6 @@
-using TmsApi.Dtos;
+using TmsApi.Application.DTOs;
 
-namespace TmsApi.Services;
+namespace TmsApi.Application.Interfaces;
 
 // Module 6 - Session 1 - Exercise 1: First REST Controller
 // (updated in Exercise 2: DTOs; Exercise 3: duplicate-code check;

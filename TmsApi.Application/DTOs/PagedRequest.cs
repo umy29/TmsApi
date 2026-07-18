@@ -1,4 +1,4 @@
-namespace TmsApi.Dtos;
+namespace TmsApi.Application.DTOs;
 
 // Module 6 - Session 2 - Exercise 4, Part A: pagination input contract.
 // MaxPageSize is a single source of truth, never inlined as a magic number.
