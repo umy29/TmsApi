@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using TmsApi.Entities;
+using TmsApi.Domain.Entities;
 
-namespace TmsApi.Data;
+namespace TmsApi.Infrastructure.Persistence;
 
 // Module 5 - Session 1 - Exercise 1, Step 2: Implement TmsDbContext
 public class TmsDbContext(DbContextOptions<TmsDbContext> options) : DbContext(options)

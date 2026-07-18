@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TmsApi.Entities;
+using TmsApi.Domain.Entities;
 
-namespace TmsApi.Data.Configurations;
+namespace TmsApi.Infrastructure.Persistence.Configurations;
 
 // Module 5 - Session 2 - Exercise 4: IEntityTypeConfiguration for each entity
 // (updated in Exercise 5 with deliberate OnDelete behavior)
