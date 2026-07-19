@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using TmsApi.Domain.Entities;
 using TmsApi.Api.Filters;
 using TmsApi.Application.Interfaces;
@@ -64,6 +65,20 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 
 // Module 6 - Session 1 - Exercise 3: register scoped, matches TmsDbContext's lifetime.
 builder.Services.AddScoped<ICourseEnrollmentService, CourseEnrollmentService>();
+
+// Module 7 - Session 1 - Exercise 1, Step 1: Configure versioning
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+})
+.AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
