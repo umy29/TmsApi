@@ -1,14 +1,16 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using TmsApi.Application.DTOs;
 using TmsApi.Application.Interfaces;
 
-namespace TmsApi.Api.Controllers;
+namespace TmsApi.Api.Controllers.V1;
 
 // Module 6 - Session 1 - Exercise 1: First REST Controller
 // (updated in Session 3 - Exercise 5: HATEOAS links; Exercise 6: Scalar metadata)
 [ApiController]
-[Route("api/courses")]
+[Route("api/v{version:apiVersion}/courses")]
+[ApiVersion("1.0")]
 [Tags("Courses")]
 [Produces("application/json")]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
