@@ -83,6 +83,7 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseMiddleware<TmsApi.Api.Middleware.V1DeprecationMiddleware>();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
