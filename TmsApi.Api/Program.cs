@@ -66,6 +66,10 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 // Module 6 - Session 1 - Exercise 3: register scoped, matches TmsDbContext's lifetime.
 builder.Services.AddScoped<ICourseEnrollmentService, CourseEnrollmentService>();
 
+// Module 7 - Session 1 - Exercise 2: register repositories for the CQRS handlers.
+builder.Services.AddScoped<TmsApi.Application.Interfaces.ICourseRepository, TmsApi.Infrastructure.Persistence.Repositories.CourseRepository>();
+builder.Services.AddScoped<TmsApi.Application.Interfaces.IEnrollmentRepository, TmsApi.Infrastructure.Persistence.Repositories.EnrollmentRepository>();
+
 // Module 7 - Session 1 - Exercise 1, Step 1: Configure versioning
 builder.Services.AddApiVersioning(options =>
 {
