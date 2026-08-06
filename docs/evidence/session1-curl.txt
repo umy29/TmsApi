@@ -1,0 +1,57 @@
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  2228    0  2228    0     0   207k      0 --:--:-- --:--:-- --:--:--  217kHTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Date: Thu, 06 Aug 2026 15:48:47 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+X-Correlation-Id: 6e94fd03
+api-supported-versions: 1.0, 2.0
+
+{"data":[{"id":14,"code":"DAT-201","title":"Advanced SQL and Indexing","maxCapacity":26,"enrollmentCount":0},{"id":7,"code":"CSE-301","title":"Advanced Web API Patterns","maxCapacity":24,"enrollmentCount":0},{"id":9,"code":"CSE-303","title":"Angular Advanced","maxCapacity":24,"enrollmentCount":0},{"id":8,"code":"CSE-302","title":"Angular Fundamentals","maxCapacity":26,"enrollmentCount":0},{"id":22,"code":"AI-101","title":"Applied Machine Learning","maxCapacity":20,"enrollmentCount":0},{"id":4,"code":"CSE-201","title":"ASP.NET Core Fundamentals","maxCapacity":28,"enrollmentCount":0},{"id":6,"code":"CSE-203","title":"Building RESTful Web APIs","maxCapacity":28,"enrollmentCount":0},{"id":26,"code":"TST-001","title":"Capacity Test Course","maxCapacity":1,"enrollmentCount":1},{"id":17,"code":"ARC-201","title":"Cloud-Native Architecture","maxCapacity":22,"enrollmentCount":0},{"id":19,"code":"DEV-201","title":"Continuous Delivery Pipelines","maxCapacity":22,"enrollmentCount":0},{"id":21,"code":"MOB-201","title":"Cross-Platform Mobile","maxCapacity":22,"enrollmentCount":0},{"id":15,"code":"DAT-202","title":"Data Modelling for the Web","maxCapacity":26,"enrollmentCount":0},{"id":13,"code":"DAT-101","title":"Database Design Foundations","maxCapacity":30,"enrollmentCount":0},{"id":25,"code":"UX-201","title":"Design Systems and Tokens","maxCapacity":22,"enrollmentCount":0},{"id":18,"code":"DEV-101","title":"DevOps Foundations","maxCapacity":24,"enrollmentCount":0},{"id":5,"code":"CSE-202","title":"Entity Framework Core and PostgreSQL","maxCapacity":28,"enrollmentCount":0},{"id":10,"code":"CSE-304","title":"Full-Stack Integration","maxCapacity":22,"enrollmentCount":0},{"id":23,"code":"AI-201","title":"Generative AI for Developers","maxCapacity":18,"enrollmentCount":0},{"id":3,"code":"CSE-103","title":"Git and Collaborative Workflows","maxCapacity":25,"enrollmentCount":0},{"id":20,"code":"MOB-101","title":"Mobile App Foundations","maxCapacity":24,"enrollmentCount":0}],"meta":{"totalCount":26,"page":1,"pageSize":20,"totalPages":2,"hasNext":true,"hasPrevious":false},"links":{"self":"/api/v2/courses?page=1&pageSize=20","next":"/api/v2/courses?page=2&pageSize=20","prev":null,"enroll":"/api/v2/enrollments"}}
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   257    0   216  100    41   2554    484 --:--:-- --:--:-- --:--:--  3059HTTP/1.1 409 Conflict
+Content-Type: application/problem+json; charset=utf-8
+Date: Thu, 06 Aug 2026 15:48:48 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+X-Correlation-Id: bdb6a47b
+api-supported-versions: 1.0, 2.0
+
+{"type":"https://tms.local/errors/already_enrolled","title":"Enrollment rejected","status":409,"detail":"Student 1 is already enrolled in CSE-101.","traceId":"00-cb7ca57b8b3aee17d6cfa547bdd0b654-38cf3f459d65f98d-00"}
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   271    0   230  100    41   5034    897 --:--:-- --:--:-- --:--:--  6022HTTP/1.1 400 Bad Request
+Content-Type: application/json; charset=utf-8
+Date: Thu, 06 Aug 2026 15:48:48 GMT
+Server: Kestrel
+Cache-Control: no-cache,no-store
+Expires: -1
+Pragma: no-cache
+Transfer-Encoding: chunked
+api-supported-versions: 1.0, 2.0
+
+{"title":"Validation failed","status":400,"detail":"One or more fields are invalid. See errors for details.","instance":"/api/v2/enrollments","errors":{"CourseCode":["Course code must follow the format XXX-000 (e.g., CSE-101)."]}}
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   247    0   206  100    41  17435   3470 --:--:-- --:--:-- --:--:-- 22454HTTP/1.1 404 Not Found
+Content-Type: application/problem+json; charset=utf-8
+Date: Thu, 06 Aug 2026 15:48:49 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+X-Correlation-Id: 5d1e8e4f
+api-supported-versions: 1.0, 2.0
+
+{"type":"https://tms.local/errors/course_not_found","title":"Enrollment rejected","status":404,"detail":"Course 'ZZZ-999' was not found.","traceId":"00-7fbcfefdf70b804dbdacf9395a4f86e0-b9ab32c6b5b9c4a6-00"}
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   257    0   216  100    41   9359   1776 --:--:-- --:--:-- --:--:-- 11681HTTP/1.1 409 Conflict
+Content-Type: application/problem+json; charset=utf-8
+Date: Thu, 06 Aug 2026 15:48:49 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+X-Correlation-Id: 6a90ce71
+api-supported-versions: 1.0, 2.0
+
+{"type":"https://tms.local/errors/already_enrolled","title":"Enrollment rejected","status":409,"detail":"Student 1 is already enrolled in CSE-101.","traceId":"00-5d87b0b763504cf37da63b172345455f-3fced336216b5d37-00"}
