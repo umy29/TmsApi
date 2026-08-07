@@ -11,4 +11,12 @@ public class CourseRepository(TmsDbContext context) : ICourseRepository
         context.Courses
             .Include(c => c.Enrollments)
             .FirstOrDefaultAsync(c => c.Code == code, ct);
+
+    // Module 7 - Session 2 - Exercise 3: fetch all courses for the cached service.
+    public Task<List<Course>> GetAllAsync(CancellationToken ct) =>
+        context.Courses
+            .Include(c => c.Enrollments)
+            .OrderBy(c => c.Title)
+            .AsNoTracking()
+            .ToListAsync(ct);
 }

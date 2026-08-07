@@ -12,6 +12,7 @@ using FluentValidation;
 using TmsApi.Application.Enrollments.Commands;
 using TmsApi.Application.Behaviors;
 using TmsApi.Api.ExceptionHandlers;
+using Microsoft.Extensions.Caching.Hybrid;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +52,14 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBeh
 // Module 7 - Session 1 - Exercise 2, Step 8: global exception handler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+builder.Services.AddHybridCache(options =>
+{
+    options.DefaultEntryOptions = new HybridCacheEntryOptions
+    {
+        Expiration = TimeSpan.FromMinutes(10),
+        LocalCacheExpiration = TimeSpan.FromMinutes(2)
+    };
+});
 
 // Exercise 7: OpenAPI
 builder.Services.AddOpenApi();
@@ -69,6 +78,7 @@ builder.Services.AddScoped<ICourseEnrollmentService, CourseEnrollmentService>();
 // Module 7 - Session 1 - Exercise 2: register repositories for the CQRS handlers.
 builder.Services.AddScoped<TmsApi.Application.Interfaces.ICourseRepository, TmsApi.Infrastructure.Persistence.Repositories.CourseRepository>();
 builder.Services.AddScoped<TmsApi.Application.Interfaces.IEnrollmentRepository, TmsApi.Infrastructure.Persistence.Repositories.EnrollmentRepository>();
+builder.Services.AddScoped<ICachedCourseService, CachedCourseService>();
 
 // Module 7 - Session 1 - Exercise 1, Step 1: Configure versioning
 builder.Services.AddApiVersioning(options =>
