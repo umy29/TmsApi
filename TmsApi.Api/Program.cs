@@ -14,6 +14,7 @@ using TmsApi.Application.Behaviors;
 using TmsApi.Api.ExceptionHandlers;
 using Microsoft.Extensions.Caching.Hybrid;
 using System.Threading.RateLimiting;
+using System.Threading.Channels;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 using TmsApi.Api.RateLimiting;
@@ -40,6 +41,19 @@ builder.Services.AddAuthorization();
 // Exercise 2 registrations
 builder.Services.AddSingleton<EnrollmentWorker>();
 builder.Services.AddSingleton<IEnrollmentService, EnrollmentService>();
+
+// Module 7 - Session 3 - Exercise 5: transcript pipeline
+builder.Services.AddSingleton(Channel.CreateBounded<TmsApi.Application.Transcripts.TranscriptRequest>(
+    new System.Threading.Channels.BoundedChannelOptions(100)
+    {
+        FullMode = System.Threading.Channels.BoundedChannelFullMode.Wait
+    }));
+builder.Services.AddSingleton<TmsApi.Infrastructure.Transcripts.ITranscriptStatusStore, TmsApi.Infrastructure.Transcripts.InMemoryTranscriptStatusStore>();
+builder.Services.AddHostedService<TmsApi.Infrastructure.Workers.TranscriptWorker>();
+
+// Module 7 - Session 3 - Exercise 6: SignalR
+builder.Services.AddSignalR();
+builder.Services.AddScoped<TmsApi.Application.Hubs.ITranscriptNotifier, TmsApi.Api.Hubs.SignalRTranscriptNotifier>();
 
 builder.Services.AddOptions<PaymentOptions>()
     .BindConfiguration("Payments")
@@ -177,6 +191,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<TmsApi.Api.Hubs.TmsHub>("/hubs/tms");
 
 if (app.Environment.IsDevelopment())
 {
