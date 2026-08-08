@@ -53,7 +53,7 @@ builder.Services.AddHostedService<TmsApi.Infrastructure.Workers.TranscriptWorker
 
 // Module 7 - Session 3 - Exercise 6: SignalR
 builder.Services.AddSignalR();
-builder.Services.AddScoped<TmsApi.Application.Hubs.ITranscriptNotifier, TmsApi.Api.Hubs.SignalRTranscriptNotifier>();
+builder.Services.AddSingleton<TmsApi.Application.Hubs.ITranscriptNotifier, TmsApi.Api.Hubs.SignalRTranscriptNotifier>();
 
 builder.Services.AddOptions<PaymentOptions>()
     .BindConfiguration("Payments")
