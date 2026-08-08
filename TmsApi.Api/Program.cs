@@ -17,6 +17,14 @@ using System.Threading.RateLimiting;
 using System.Threading.Channels;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Metrics;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Resilience;
+using Microsoft.Extensions.Http.Resilience;
+using Polly.DependencyInjection;
+using Polly;
 using TmsApi.Api.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -143,8 +151,74 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
+// Module 7 - Session 4 - Exercise 8: Polly resilience pipeline
+builder.Services.AddResiliencePipeline("certificate-api", pipeline =>
+{
+    pipeline
+        .AddTimeout(TimeSpan.FromSeconds(5))
+        .AddCircuitBreaker(new Polly.CircuitBreaker.CircuitBreakerStrategyOptions
+        {
+            FailureRatio = 0.5,
+            MinimumThroughput = 10,
+            SamplingDuration = TimeSpan.FromSeconds(30),
+            BreakDuration = TimeSpan.FromSeconds(15),
+            ShouldHandle = new Polly.PredicateBuilder()
+                .Handle<HttpRequestException>()
+                .Handle<Polly.Timeout.TimeoutRejectedException>(),
+            OnOpened = args => { Console.WriteLine("Circuit OPENED"); return ValueTask.CompletedTask; },
+            OnClosed = args => { Console.WriteLine("Circuit CLOSED"); return ValueTask.CompletedTask; }
+        })
+        .AddRetry(new Polly.Retry.RetryStrategyOptions
+        {
+            MaxRetryAttempts = 3,
+            Delay = TimeSpan.FromMilliseconds(500),
+            BackoffType = Polly.DelayBackoffType.Exponential,
+            UseJitter = true,
+            ShouldHandle = new Polly.PredicateBuilder()
+                .Handle<HttpRequestException>()
+                .Handle<Polly.Timeout.TimeoutRejectedException>(),
+            OnRetry = args =>
+            {
+                Console.WriteLine($"Retry #{args.AttemptNumber} after {args.RetryDelay.TotalMilliseconds:F0}ms");
+                return ValueTask.CompletedTask;
+            }
+        });
+});
+builder.Services.AddHttpClient<ICertificateService, TmsApi.Infrastructure.ExternalServices.CertificateService>((sp, client) =>
+{
+    var baseUrl = sp.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>().GetValue<string>("TmsApi:PublicBaseUrl") ?? "http://localhost:5286";
+    client.BaseAddress = new Uri(baseUrl);
+});
+
 // Exercise 7: OpenAPI
 builder.Services.AddOpenApi();
+
+// Module 7 - Session 4 - Exercise 9: health checks
+builder.Services.AddHealthChecks()
+    .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy("alive"), tags: ["live"])
+    .AddNpgSql(builder.Configuration.GetConnectionString("TmsDatabase")!, name: "postgres", tags: ["ready"]);
+
+// Module 7 - Session 4 - Exercise 9: OpenTelemetry
+const string ServiceName = "tms-api";
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(r => r.AddService(serviceName: ServiceName, serviceVersion: "1.0.0"))
+    .WithTracing(t => t
+        .AddSource(ServiceName)
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddOtlpExporter())
+    .WithMetrics(m => m
+        .AddMeter(ServiceName)
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddOtlpExporter());
+
+// Module 7 - Session 4 - Exercise 9: structured JSON logging
+builder.Logging.AddJsonConsole(options =>
+{
+    options.IncludeScopes = true;
+    options.JsonWriterOptions = new System.Text.Json.JsonWriterOptions { Indented = false };
+});
 
 builder.Services.AddDbContextFactory<TmsDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("TmsDatabase"))
@@ -191,6 +265,27 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Module 7 - Session 4 - Exercise 9: health probes
+app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("live")
+}).DisableRateLimiting();
+app.MapHealthChecks("/health/ready", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+}).DisableRateLimiting();
+
+// Module 7 - Session 4 - Exercise 8: lab-only fake certificate service
+var attempts = 0;
+app.MapPost("/fake/certificates", async () =>
+{
+    var n = Interlocked.Increment(ref attempts);
+    if (n % 7 == 0) { await Task.Delay(TimeSpan.FromSeconds(20)); return Results.Ok(new { Status = "issued", Attempt = n }); }
+    if (n % 3 != 0) return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+    if (n % 11 == 0) return Results.BadRequest(new { error = "validation_failed" });
+    return Results.Ok(new { Status = "issued", Attempt = n });
+}).WithTags("lab-fixtures");
 app.MapHub<TmsApi.Api.Hubs.TmsHub>("/hubs/tms");
 
 if (app.Environment.IsDevelopment())
