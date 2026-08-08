@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace TmsApi.Api.Controllers.V2;
 
 [ApiController]
-[Route("api/v2/transcripts")]
+[Route("api/v{version:apiVersion}/transcripts")]
 [ApiVersion("2.0")]
 public class TranscriptsController : ControllerBase
 {
