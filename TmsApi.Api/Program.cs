@@ -88,6 +88,14 @@ builder.Services.AddHybridCache(options =>
 });
 
 // Module 7 - Session 2 - Exercise 4: tier-aware rate limiting
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular", policy =>
+        policy.WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
 builder.Services.AddRateLimiter(options =>
 {
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
@@ -260,6 +268,7 @@ app.UseStatusCodePages();
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowAngular");
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
