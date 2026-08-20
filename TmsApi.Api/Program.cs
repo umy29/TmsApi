@@ -88,12 +88,19 @@ builder.Services.AddHybridCache(options =>
 });
 
 // Module 7 - Session 2 - Exercise 4: tier-aware rate limiting
+// Module 10 - Session 1 - Exercise 1: named CORS policy from appsettings
+var allowedOrigins = builder.Configuration
+    .GetSection("AllowedOrigins").Get<string[]>()
+    ?? new[] { "http://localhost:4200" };
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngular", policy =>
-        policy.WithOrigins("http://localhost:4200")
+    options.AddPolicy("TmsClient", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
             .AllowAnyHeader()
-            .AllowAnyMethod());
+            .AllowAnyMethod()
+            .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
+    });
 });
 
 builder.Services.AddRateLimiter(options =>
@@ -268,7 +275,7 @@ app.UseStatusCodePages();
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAngular");
+app.UseCors("TmsClient");
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -360,3 +367,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
+
+
