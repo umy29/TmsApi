@@ -329,7 +329,7 @@ app.MapPost("/fake/certificates", async () =>
     if (n % 11 == 0) return Results.BadRequest(new { error = "validation_failed" });
     return Results.Ok(new { Status = "issued", Attempt = n });
 }).WithTags("lab-fixtures");
-app.MapHub<TmsApi.Api.Hubs.TmsHub>("/hubs/tms");
+app.MapHub<TmsApi.Api.Hubs.TmsHub>("/hubs/tms").RequireCors("TmsClient");
 
 if (app.Environment.IsDevelopment())
 {
@@ -394,6 +394,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
 
 
 
