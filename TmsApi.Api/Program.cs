@@ -25,6 +25,7 @@ using Microsoft.Extensions.Resilience;
 using Microsoft.Extensions.Http.Resilience;
 using Polly.DependencyInjection;
 using Polly;
+using Microsoft.AspNetCore.Antiforgery;
 using TmsApi.Api.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -78,6 +79,12 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBeh
 // Module 7 - Session 1 - Exercise 2, Step 8: global exception handler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+// Module 10 - Session 2 - Exercise 2: antiforgery for XSRF protection
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-XSRF-TOKEN";
+});
 builder.Services.AddHybridCache(options =>
 {
     options.DefaultEntryOptions = new HybridCacheEntryOptions
@@ -280,6 +287,26 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Module 10 - Session 2 - Exercise 2: issue readable XSRF-TOKEN cookie
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated == true ||
+        context.Request.Cookies.ContainsKey("tms_auth"))
+    {
+        var antiforgery = context.RequestServices
+            .GetRequiredService<IAntiforgery>();
+        var tokens = antiforgery.GetAndStoreTokens(context);
+        context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken!,
+            new CookieOptions
+            {
+                HttpOnly = false,
+                Secure = !builder.Environment.IsDevelopment(),
+                SameSite = SameSiteMode.Strict
+            });
+    }
+    await next(context);
+});
+
 app.MapControllers();
 
 // Module 7 - Session 4 - Exercise 9: health probes
@@ -367,6 +394,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
+
+
 
 
 
