@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TmsApi.Domain.Entities;
 
 namespace TmsApi.Infrastructure.Persistence;
 
 // Module 5 - Session 1 - Exercise 1, Step 2: Implement TmsDbContext
-public class TmsDbContext(DbContextOptions<TmsDbContext> options) : DbContext(options)
+// Module 11 - Session 1 - Exercise 2, Step 2: inherit IdentityDbContext<TmsUser>
+public class TmsDbContext(DbContextOptions<TmsDbContext> options)
+    : IdentityDbContext<TmsUser>(options)
 {
     public DbSet<Student> Students => Set<Student>();
     public DbSet<Course> Courses => Set<Course>();
@@ -14,12 +17,10 @@ public class TmsDbContext(DbContextOptions<TmsDbContext> options) : DbContext(op
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(TmsDbContext).Assembly);
     }
 
-    // Module 5 - Session 3 - Exercise 8: automatically stamp the LastUpdated
-    // shadow property on every Student that's added or modified, so no
-    // controller needs to remember to set it manually.
     public override int SaveChanges()
     {
         UpdateAuditShadowProperties();
