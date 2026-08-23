@@ -70,6 +70,22 @@ builder.Services.AddOptions<PaymentOptions>()
     .ValidateOnStart();
 
 // Module 7 - Session 1 - Exercise 2, Step 8: MediatR + behaviors (Logging FIRST, then Validation)
+// Module 11 - Session 1 - Exercise 2, Step 3: ASP.NET Core Identity
+builder.Services.AddIdentityCore<TmsApi.Domain.Entities.TmsUser>(options =>
+{
+    // Enterprise Password Policy
+    options.Password.RequiredLength = 12;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireDigit = true;
+    options.Password.RequireNonAlphanumeric = true;
+    // Brute-Force Lockout Protection
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.AllowedForNewUsers = true;
+})
+.AddRoles<Microsoft.AspNetCore.Identity.IdentityRole>()
+.AddEntityFrameworkStores<TmsApi.Infrastructure.Persistence.TmsDbContext>();
+
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(EnrollStudentHandler).Assembly));
 builder.Services.AddValidatorsFromAssembly(typeof(EnrollStudentValidator).Assembly);
@@ -394,6 +410,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
 
 
 
