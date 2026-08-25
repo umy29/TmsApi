@@ -16,6 +16,12 @@ public class TmsDbContext(DbContextOptions<TmsDbContext> options)
     public DbSet<Certificate> Certificates => Set<Certificate>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.ConfigureWarnings(w =>
+            w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -43,4 +49,5 @@ public class TmsDbContext(DbContextOptions<TmsDbContext> options)
         }
     }
 }
+
 
