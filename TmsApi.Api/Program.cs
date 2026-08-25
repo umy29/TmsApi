@@ -195,6 +195,12 @@ builder.Services.AddRateLimiter(options =>
         opt.QueueLimit = 20;
         opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     });
+    options.AddFixedWindowLimiter("login", opt =>
+    {
+        opt.PermitLimit = 5;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueLimit = 0;
+    });
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.OnRejected = async (context, ct) =>
     {
@@ -322,6 +328,17 @@ app.UseStatusCodePages();
 
 app.UseHttpsRedirection();
 
+// Module 11 - Session 3 - Exercise 7: security headers
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.Append("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'");
+    await next();
+});
+
 app.UseCors("TmsClient");
 app.UseRateLimiter();
 app.UseAuthentication();
@@ -434,6 +451,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
 
 
 
