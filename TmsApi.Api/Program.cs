@@ -40,6 +40,13 @@ builder.Services.AddControllers(options =>
 {
     options.Filters.Add<AuditLogFilter>();
 });
+// Module 11 - Session 3 - Exercise 5: resource-based authorization policy
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("CanEditCourse", policy =>
+        policy.Requirements.Add(new TmsApi.Api.Authorization.CourseInstructorRequirement()));
+builder.Services.AddSingleton<Microsoft.AspNetCore.Authorization.IAuthorizationHandler,
+    TmsApi.Api.Authorization.CourseInstructorHandler>();
+
 // Module 11 - Session 2 - Exercise 3: JWT Bearer authentication
 builder.Services.AddScoped<TmsApi.Infrastructure.Services.TokenService>();
 builder.Services.AddAuthentication(options =>
@@ -427,6 +434,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
 
 
 
