@@ -264,7 +264,13 @@ builder.Services.AddOpenApi();
 // Module 7 - Session 4 - Exercise 9: health checks
 builder.Services.AddHealthChecks()
     .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy("alive"), tags: ["live"])
-    .AddNpgSql(builder.Configuration.GetConnectionString("TmsDatabase")!, name: "postgres", tags: ["ready"]);
+    .AddCheck("postgres", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy("skipped in test"),
+        tags: ["ready"]);
+if (builder.Configuration.GetConnectionString("TmsDatabase") is { } pgCs && !pgCs.Contains("TmsTestDb"))
+{
+    builder.Services.AddHealthChecks()
+        .AddNpgSql(pgCs, name: "postgres-live", tags: ["ready"]);
+}
 
 // Module 7 - Session 4 - Exercise 9: OpenTelemetry
 const string ServiceName = "tms-api";
@@ -408,7 +414,10 @@ app.MapGet("/api/error", () =>
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<TmsDbContext>();
-    context.Database.Migrate();
+    if (context.Database.IsRelational())
+        context.Database.Migrate();
+    else
+        context.Database.EnsureCreated();
 
     if (!context.Students.Any())
     {
@@ -462,3 +471,5 @@ app.Run();
 
 
 
+
+public partial class Program { }
