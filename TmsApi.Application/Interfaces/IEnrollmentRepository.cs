@@ -12,4 +12,7 @@ public interface IEnrollmentRepository
     // Must include Course so the schedule query can read Course.Code/Title
     // without a second round trip.
     Task<List<Enrollment>> GetByStudentIdAsync(int studentId, CancellationToken ct);
+
+    // Module 12 - Session 2 - Exercise 5: MaxEnrollmentsPerStudent business rule
+    Task<int> CountByStudentAsync(int studentId, CancellationToken ct);
 }

@@ -22,6 +22,13 @@ public class EnrollStudentHandler(
             return Result<EnrollmentCreated, EnrollmentError>.Failure(
                 EnrollmentError.CourseFull(course.Title, course.MaxCapacity));
 
+        // Module 12 - Session 2 - Exercise 5: MaxEnrollmentsPerStudent business rule
+        const int MaxEnrollmentsPerStudent = 5;
+        var enrollmentCount = await enrollmentRepo.CountByStudentAsync(command.StudentId, ct);
+        if (enrollmentCount >= MaxEnrollmentsPerStudent)
+            return Result<EnrollmentCreated, EnrollmentError>.Failure(
+                EnrollmentError.EnrollmentLimitReached(command.StudentId, MaxEnrollmentsPerStudent));
+
         if (await enrollmentRepo.ExistsAsync(command.StudentId, command.CourseCode, ct))
             return Result<EnrollmentCreated, EnrollmentError>.Failure(
                 EnrollmentError.AlreadyEnrolled(command.StudentId, command.CourseCode));
