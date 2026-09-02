@@ -433,8 +433,8 @@ using (var scope = app.Services.CreateScope())
 
         var courses = new List<Course>
         {
-            new() { Code = "CS-101", Title = "Introduction to Computer Science", MaxCapacity = 30 },
-            new() { Code = "CS-201", Title = "Data Structures and Algorithms", MaxCapacity = 25 },
+            new() { Code = "CSE-101", Title = "Introduction to Computer Science", MaxCapacity = 30 },
+            new() { Code = "CSE-201", Title = "Data Structures and Algorithms", MaxCapacity = 25 },
             new() { Code = "MAT-101", Title = "Calculus I", MaxCapacity = 40 }
         };
         context.Courses.AddRange(courses);

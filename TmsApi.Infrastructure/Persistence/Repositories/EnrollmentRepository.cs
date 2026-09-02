@@ -24,6 +24,8 @@ public class EnrollmentRepository(TmsDbContext context) : IEnrollmentRepository
     public Task<List<Enrollment>> GetByStudentIdAsync(int studentId, CancellationToken ct) =>
         context.Enrollments
             .Include(e => e.Course)
+            .Include(e => e.Student)
             .Where(e => e.StudentId == studentId)
+            .AsNoTracking()
             .ToListAsync(ct);
 }

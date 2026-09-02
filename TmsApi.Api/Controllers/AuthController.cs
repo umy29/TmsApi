@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,9 @@ using TmsApi.Infrastructure.Services;
 namespace TmsApi.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v{version:apiVersion}/auth")]
+[ApiVersion("1.0")]
+[ApiVersion("2.0")]
 public class AuthController(
     UserManager<TmsUser> userManager,
     RoleManager<IdentityRole> roleManager,
